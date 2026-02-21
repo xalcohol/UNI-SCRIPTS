@@ -1,0 +1,35 @@
+-- Services
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
+
+-- Settings
+local TOGGLE_KEY = Enum.KeyCode.P
+local TARGET_KEY = Enum.KeyCode.E
+local PRESS_INTERVAL = 0.7 -- seconds between presses
+
+local enabled = false
+local lastPress = 0
+
+-- Toggle when P is pressed
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	
+	if input.KeyCode == TOGGLE_KEY then
+		enabled = not enabled
+		print("Auto E:", enabled and "ON" or "OFF")
+	end
+end)
+
+-- Loop that presses E
+RunService.RenderStepped:Connect(function()
+	if not enabled then return end
+	
+	if tick() - lastPress >= PRESS_INTERVAL then
+		lastPress = tick()
+		
+		-- Simulate key press
+		VirtualInputManager:SendKeyEvent(true, TARGET_KEY, false, game)
+		VirtualInputManager:SendKeyEvent(false, TARGET_KEY, false, game)
+	end
+end)
