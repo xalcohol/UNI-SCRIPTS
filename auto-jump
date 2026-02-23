@@ -1,7 +1,6 @@
 -- Services
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-local RunService = game:GetService("RunService")
 
 local player = Players.LocalPlayer
 
@@ -10,8 +9,8 @@ local TOGGLE_KEY = Enum.KeyCode.P
 local JUMP_INTERVAL = 30
 
 local enabled = false
-local lastJump = 0
 
+-- Toggle
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	if gameProcessed then return end
 	
@@ -21,18 +20,22 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	end
 end)
 
-RunService.RenderStepped:Connect(function()
-	if not enabled then return end
-	
-	if tick() - lastJump >= JUMP_INTERVAL then
-		lastJump = tick()
-		
-		local character = player.Character
-		if character then
-			local humanoid = character:FindFirstChildOfClass("Humanoid")
-			if humanoid then
-				humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+-- Main loop
+task.spawn(function()
+	while true do
+		if enabled then
+			local character = player.Character
+			if character then
+				local humanoid = character:FindFirstChildWhichIsA("Humanoid")
+				
+				if humanoid and humanoid.Health > 0 then
+					humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+				end
 			end
+			
+			task.wait(JUMP_INTERVAL)
+		else
+			task.wait(0.1)
 		end
 	end
 end)
