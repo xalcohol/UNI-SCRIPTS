@@ -1,8 +1,6 @@
 -- Services
-local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
-
-local player = Players.LocalPlayer
+local VirtualInputManager = game:GetService("VirtualInputManager")
 
 -- Settings
 local TOGGLE_KEY = Enum.KeyCode.P
@@ -16,22 +14,18 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
 	
 	if input.KeyCode == TOGGLE_KEY then
 		enabled = not enabled
-		print("Auto Jump:", enabled and "ON" or "OFF")
+		print("Auto Jump (Real Input):", enabled and "ON" or "OFF")
 	end
 end)
 
--- Main loop
+-- Loop
 task.spawn(function()
 	while true do
 		if enabled then
-			local character = player.Character
-			if character then
-				local humanoid = character:FindFirstChildWhichIsA("Humanoid")
-				
-				if humanoid and humanoid.Health > 0 then
-					humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
-				end
-			end
+			-- Press space
+			VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.Space, false, game)
+			task.wait(0.1)
+			VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.Space, false, game)
 			
 			task.wait(JUMP_INTERVAL)
 		else
